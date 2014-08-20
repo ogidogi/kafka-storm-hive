@@ -1,4 +1,4 @@
-package org.expedia;
+package org.expedia.test;
 
 import storm.kafka.KafkaSpout;
 import storm.kafka.SpoutConfig;
@@ -10,7 +10,7 @@ import backtype.storm.spout.SchemeAsMultiScheme;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
 
-public class KafkaStormFirst {
+public class KafkaStormTopology {
     public static void main(String[] args) {
         TopologyBuilder builder = new TopologyBuilder();
 
@@ -22,7 +22,7 @@ public class KafkaStormFirst {
         builder.setBolt("KafkaBolt", new PrinterBolt(), 3).shuffleGrouping("KafkaSpout");
 
         Config conf = new Config();
-        //conf.setDebug(true);
+        // conf.setDebug(true);
 
         LocalCluster cluster = new LocalCluster();
         cluster.submitTopology("kafka-test", conf, builder.createTopology());
