@@ -29,6 +29,5 @@ public class KafkaStormTopology {
 
         Utils.sleep(60000);
         cluster.shutdown();
-
     }
 }
