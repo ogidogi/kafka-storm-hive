@@ -37,7 +37,7 @@
         <hashTree/>
         <co.signal.loadgen.LoadGenerator guiclass="TestBeanGUI" testclass="co.signal.loadgen.LoadGenerator" testname="Tagserve Load Generator" enabled="true">
           <stringProp name="className">co.signal.loadgen.example.TagserveLoadGenerator</stringProp>
-          <stringProp name="fileName">/home/cloudera/WORK/kafkameter/config1.json</stringProp>
+          <stringProp name="fileName">./workspace/kafka-storm-hive/tools/kafkameter/config1.json</stringProp>
           <stringProp name="variableName">message</stringProp>
         </co.signal.loadgen.LoadGenerator>
         <hashTree/>
@@ -51,7 +51,7 @@
               </elementProp>
               <elementProp name="kafka_topic" elementType="Argument">
                 <stringProp name="Argument.name">kafka_topic</stringProp>
-                <stringProp name="Argument.value">test</stringProp>
+                <stringProp name="Argument.value">test_topic</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="kafka_key" elementType="Argument">
