@@ -11,23 +11,23 @@ import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
 
 public class KafkaStormTopology {
-    public static void main(String[] args) {
-        TopologyBuilder builder = new TopologyBuilder();
+        public static void main(String[] args) {
+                TopologyBuilder builder = new TopologyBuilder();
 
-        SpoutConfig spoutConf = new SpoutConfig(new ZkHosts("localhost:2181", "/brokers"), "test", "/kafkastorm", "KafkaSpout");
-        spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
-        spoutConf.forceFromStart = true;
+                SpoutConfig spoutConf = new SpoutConfig(new ZkHosts("localhost:2181", "/brokers"), "test", "/kafkastorm", "KafkaSpout");
+                spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
+                spoutConf.forceFromStart = true;
 
-        builder.setSpout("KafkaSpout", new KafkaSpout(spoutConf), 3);
-        builder.setBolt("KafkaBolt", new PrinterBolt(), 3).shuffleGrouping("KafkaSpout");
+                builder.setSpout("KafkaSpout", new KafkaSpout(spoutConf), 3);
+                builder.setBolt("KafkaBolt", new PrinterBolt(), 3).shuffleGrouping("KafkaSpout");
 
-        Config conf = new Config();
-        // conf.setDebug(true);
+                Config conf = new Config();
+                // conf.setDebug(true);
 
-        LocalCluster cluster = new LocalCluster();
-        cluster.submitTopology("kafka-test", conf, builder.createTopology());
+                LocalCluster cluster = new LocalCluster();
+                cluster.submitTopology("kafka-test", conf, builder.createTopology());
 
-        Utils.sleep(60000);
-        cluster.shutdown();
-    }
+                Utils.sleep(60000);
+                cluster.shutdown();
+        }
 }

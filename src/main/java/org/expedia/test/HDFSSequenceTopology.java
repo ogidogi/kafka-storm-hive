@@ -1,5 +1,6 @@
 package org.expedia.test;
 
+import backtype.storm.spout.RawScheme;
 import backtype.storm.spout.SchemeAsMultiScheme;
 import org.apache.storm.hdfs.common.rotation.MoveFileAction;
 import org.apache.storm.hdfs.trident.HdfsState;
@@ -21,45 +22,55 @@ import storm.kafka.trident.TridentKafkaConfig;
 import storm.trident.Stream;
 import storm.trident.TridentTopology;
 import storm.trident.state.StateFactory;
-import storm.trident.testing.FixedBatchSpout;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 
 public class HDFSSequenceTopology {
+
+        public static final String KAFKA_TOPIC = "test_topic";
+        public static final String ZKHOST = "localhost:2181";
+        public static final String HDFS_OUT_PATH = "/user/hive/warehouse/stg_streaming_target";
+        public static final String HDFS_ROTATE_PATH = HDFS_OUT_PATH;
+        public static final String HDFS_CLUSTER = "hdfs://localhost:8020";
+
         public static StormTopology buildTopology(String hdfsUrl) {
-                TridentKafkaConfig tridentKafkaConfig = new TridentKafkaConfig(new ZkHosts("localhost:2181", "/brokers"), "test_topic");
-                tridentKafkaConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
+                TridentKafkaConfig tridentKafkaConfig = new TridentKafkaConfig(new ZkHosts(ZKHOST, "/brokers"), KAFKA_TOPIC);
+                tridentKafkaConfig.scheme = new SchemeAsMultiScheme(new RawScheme());
+                tridentKafkaConfig.startOffsetTime = -1; //forceStartOffsetTime(-1); //Read latest messages from Kafka
 
                 TransactionalTridentKafkaSpout tridentKafkaSpout = new TransactionalTridentKafkaSpout(tridentKafkaConfig);
                 //spout.setCycle(true);
 
                 TridentTopology topology = new TridentTopology();
 
-                Stream stream = topology.newStream("spout1", tridentKafkaSpout);
-                Fields hdfsFields = new Fields("str");
+                Stream stream = topology.newStream("stream", tridentKafkaSpout);
+
                 //SyncPolicy syncPolicy = new CountSyncPolicy(2);
-                FileNameFormat fileNameFormat = new DefaultFileNameFormat().withPath("/tmp/hdfs-con").withPrefix("trident")
+                FileNameFormat fileNameFormat = new DefaultFileNameFormat().withPath(HDFS_OUT_PATH).withPrefix("trident")
                         .withExtension(".txt");
                 FileRotationPolicy rotationPolicy = new FileSizeRotationPolicy(5.0f, FileSizeRotationPolicy.Units.MB);
                 HdfsState.Options seqOpts = new HdfsState.HdfsFileOptions().withFileNameFormat(fileNameFormat)
-                        .withRecordFormat(new DelimitedRecordFormat().withFieldDelimiter("|").withFields(new Fields("str")))
+                        .withRecordFormat(new DelimitedRecordFormat().withFieldDelimiter("|").withFields(new Fields("json")))
                         .withRotationPolicy(rotationPolicy)
                         .withFsUrl(hdfsUrl)
-                        .addRotationAction(new MoveFileAction().toDestination("/tmp/hdfs-con2/"));
+                        .addRotationAction(new MoveFileAction().toDestination(HDFS_ROTATE_PATH));
                 StateFactory factory = new HdfsStateFactory().withOptions(seqOpts);
-                stream.partitionPersist(factory, hdfsFields, new HdfsUpdater(), new Fields());
+
+                stream.each(new Fields("bytes"), new JacksonJsonParser(), new Fields("json"))
+                        .partitionPersist(factory, new Fields("json"), new HdfsUpdater(), new Fields());
+
                 return topology.build();
         }
 
         public static void main(String[] args) throws Exception {
                 Config conf = new Config();
                 conf.setMaxSpoutPending(5);
+                conf.setDebug(true);
                 LocalCluster cluster = new LocalCluster();
-                cluster.submitTopology("wordCounter", conf, buildTopology("hdfs://localhost:8020"));
+                cluster.submitTopology("kafka2hdfs", conf, buildTopology(HDFS_CLUSTER));
 
                 Utils.sleep(180000);
                 cluster.shutdown();
