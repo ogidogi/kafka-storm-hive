@@ -18,13 +18,14 @@ public class JacksonJsonParser extends BaseFunction {
         public static final char FIELD_DELIMITER = '\001';
         private static final Logger LOG = LoggerFactory.getLogger(JacksonJsonParser.class);
 
-        @Override public void execute(TridentTuple objects, TridentCollector tridentCollector) {
+        @Override
+        public void execute(TridentTuple objects, TridentCollector tridentCollector) {
                 byte[] inputJson = objects.getBinaryByField("bytes");
-                LOG.debug("Input byte array: " + String.valueOf(inputJson));
+                LOG.info("Input byte array: " + String.valueOf(inputJson));
 
                 try {
                         String inputJsonString = new String(inputJson, "UTF-8");
-                        LOG.debug("Deserialized string from input bytes: " + inputJsonString);
+                        LOG.info("Deserialized string from input bytes: " + inputJsonString);
                 } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                 }
@@ -37,7 +38,7 @@ public class JacksonJsonParser extends BaseFunction {
                         JsonField jsonField = mapper.readValue(inputJson, JsonField.class);
                         jsonField.setFieldDelimiter(FIELD_DELIMITER);
                         outValues.add(jsonField);
-                        LOG.debug("Output values: " + outValues);
+                        LOG.info("Output values: " + outValues);
                         tridentCollector.emit(outValues);
                 } catch (IOException e) {
                         e.printStackTrace();

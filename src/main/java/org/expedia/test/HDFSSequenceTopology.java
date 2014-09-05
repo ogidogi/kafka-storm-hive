@@ -32,7 +32,9 @@ public class HDFSSequenceTopology {
 
         public static final String KAFKA_TOPIC = "test_topic";
         public static final String ZKHOST = "localhost:2181";
-        public static final String HDFS_OUT_PATH = "/user/hive/warehouse/target_rt/processing_stage=RT/";
+        public static final String HDFS_OUT_PATH = "/user/hive/warehouse/target_rt/";
+        //Use with partitioning table
+        //public static final String HDFS_OUT_PATH = "/user/hive/warehouse/target_rt/processing_stage=RT/";
         public static final String HDFS_ROTATE_PATH = HDFS_OUT_PATH;
         public static final String HDFS_CLUSTER = "hdfs://localhost:8020";
 
@@ -42,13 +44,11 @@ public class HDFSSequenceTopology {
                 tridentKafkaConfig.startOffsetTime = -1; //forceStartOffsetTime(-1); //Read latest messages from Kafka
 
                 TransactionalTridentKafkaSpout tridentKafkaSpout = new TransactionalTridentKafkaSpout(tridentKafkaConfig);
-                //spout.setCycle(true);
 
                 TridentTopology topology = new TridentTopology();
 
                 Stream stream = topology.newStream("stream", tridentKafkaSpout);
-
-                //SyncPolicy syncPolicy = new CountSyncPolicy(2);
+;
                 FileNameFormat fileNameFormat = new DefaultFileNameFormat().withPath(HDFS_OUT_PATH).withPrefix("trident")
                         .withExtension(".txt");
                 FileRotationPolicy rotationPolicy = new FileSizeCountRotationPolicy(5.0f, FileSizeRotationPolicy.Units.MB, 10);
@@ -56,7 +56,8 @@ public class HDFSSequenceTopology {
                         .withRecordFormat(new DelimitedRecordFormat().withFieldDelimiter("|").withFields(new Fields("json")))
                         .withRotationPolicy(rotationPolicy)
                         .withFsUrl(hdfsUrl)
-                        .addRotationAction(new MoveFileAction().toDestination(HDFS_ROTATE_PATH));
+                        //.addRotationAction(new MoveFileAction().toDestination(HDFS_ROTATE_PATH));
+                        .addRotationAction(new AddSuffixFileAction().withSuffix("-processed"));
                 StateFactory factory = new HdfsStateFactory().withOptions(seqOpts);
 
                 stream.each(new Fields("bytes"), new JacksonJsonParser(), new Fields("json"))
@@ -68,6 +69,8 @@ public class HDFSSequenceTopology {
         public static void main(String[] args) throws Exception {
                 Config conf = new Config();
                 conf.setMaxSpoutPending(5);
+                conf.setMaxTaskParallelism(4);
+
                 //conf.setDebug(true);
                 LocalCluster cluster = new LocalCluster();
                 cluster.submitTopology("kafka2hdfs", conf, buildTopology(HDFS_CLUSTER));
