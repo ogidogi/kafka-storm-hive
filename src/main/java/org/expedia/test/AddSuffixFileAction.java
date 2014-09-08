@@ -25,7 +25,7 @@ public class AddSuffixFileAction implements RotationAction {
                 //Path destPath = filePath.getParent();
                 Path destPath = filePath.suffix(suffixFileName);
                 //Path destPath = new Path(destFileName, filePath.getName());
-                LOG.info("Renamingl file {} to {}", filePath, destPath);
+                LOG.info("Renaming file {} to {}", filePath, destPath);
                 boolean success = fileSystem.rename(filePath, destPath);
                 return;
         }

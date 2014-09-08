@@ -48,7 +48,7 @@ public class HDFSSequenceTopology {
                 TridentTopology topology = new TridentTopology();
 
                 Stream stream = topology.newStream("stream", tridentKafkaSpout);
-;
+
                 FileNameFormat fileNameFormat = new DefaultFileNameFormat().withPath(HDFS_OUT_PATH).withPrefix("trident")
                         .withExtension(".txt");
                 FileRotationPolicy rotationPolicy = new FileSizeCountRotationPolicy(5.0f, FileSizeRotationPolicy.Units.MB, 10);
@@ -57,7 +57,8 @@ public class HDFSSequenceTopology {
                         .withRotationPolicy(rotationPolicy)
                         .withFsUrl(hdfsUrl)
                         //.addRotationAction(new MoveFileAction().toDestination(HDFS_ROTATE_PATH));
-                        .addRotationAction(new AddSuffixFileAction().withSuffix("-processed"));
+                        //.addRotationAction(new AddSuffixFileAction().withSuffix("-processed"));
+                        .addRotationAction(new MD5FileAction());
                 StateFactory factory = new HdfsStateFactory().withOptions(seqOpts);
 
                 stream.each(new Fields("bytes"), new JacksonJsonParser(), new Fields("json"))
