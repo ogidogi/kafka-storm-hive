@@ -10,23 +10,25 @@ import java.io.IOException;
 
 public class AddSuffixFileAction implements RotationAction {
 
-        private static final Logger LOG = LoggerFactory.getLogger(AddSuffixFileAction.class);
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 3014745235064765456L;
 
-        private String suffixFileName = "";
+    private static final Logger LOG = LoggerFactory.getLogger(AddSuffixFileAction.class);
 
-        public AddSuffixFileAction withSuffix(String suffixFileName) {
-                this.suffixFileName = suffixFileName;
-                return this;
-        }
+    private String suffixFileName = "";
 
-        @Override
-        public void execute(FileSystem fileSystem, Path filePath) throws IOException {
-                //String destFileName = filePath.getName();
-                //Path destPath = filePath.getParent();
-                Path destPath = filePath.suffix(suffixFileName);
-                //Path destPath = new Path(destFileName, filePath.getName());
-                LOG.info("Renaming file {} to {}", filePath, destPath);
-                boolean success = fileSystem.rename(filePath, destPath);
-                return;
-        }
+    public AddSuffixFileAction withSuffix(String suffixFileName) {
+        this.suffixFileName = suffixFileName;
+        return this;
+    }
+
+    @Override
+    public void execute(FileSystem fileSystem, Path filePath) throws IOException {
+        Path destPath = filePath.suffix(suffixFileName);
+        LOG.info("Renaming file {} to {}", filePath, destPath);
+        fileSystem.rename(filePath, destPath);
+        return;
+    }
 }

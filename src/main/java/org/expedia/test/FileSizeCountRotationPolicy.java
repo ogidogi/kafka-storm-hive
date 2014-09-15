@@ -5,26 +5,29 @@ import storm.trident.tuple.TridentTuple;
 
 public class FileSizeCountRotationPolicy extends FileSizeRotationPolicy {
 
-        private long maxCounter = 1000L;
-        private long curCounter = 0L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2005350270344095469L;
+    private long maxCounter = 1000L;
+    private long curCounter = 0L;
 
-        public FileSizeCountRotationPolicy(float count, Units units, long maxCounter) {
-                super(count, units);
-                this.maxCounter = maxCounter;
-        }
+    public FileSizeCountRotationPolicy(float count, Units units, long maxCounter) {
+        super(count, units);
+        this.maxCounter = maxCounter;
+    }
 
-        @Override
-        public boolean mark(TridentTuple tuple, long offset) {
-                boolean result = super.mark(tuple, offset);
+    @Override
+    public boolean mark(TridentTuple tuple, long offset) {
+        boolean result = super.mark(tuple, offset);
 
-                curCounter++;
+        curCounter++;
+        return curCounter >= maxCounter ? true : result;
+    }
 
-                return curCounter >= maxCounter ? true : result;
-        }
-
-        @Override
-        public void reset() {
-                super.reset();
-                curCounter = 0L;
-        }
+    @Override
+    public void reset() {
+        super.reset();
+        curCounter = 0L;
+    }
 }

@@ -11,28 +11,25 @@ import java.io.*;
 
 public class MD5FileAction implements RotationAction {
 
-        private static final Logger LOG = LoggerFactory.getLogger(MD5FileAction.class);
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -15356986657135815L;
+    private static final Logger LOG = LoggerFactory.getLogger(MD5FileAction.class);
 
-        @Override public void execute(FileSystem fileSystem, Path filePath) throws IOException {
+    @Override
+    public void execute(FileSystem fileSystem, Path filePath) throws IOException {
+        FileChecksum chkSum = fileSystem.getFileChecksum(filePath);
 
-                FileChecksum chkSum = fileSystem.getFileChecksum(filePath);
+        String chksumFileName = filePath.getName().substring(0, filePath.getName().lastIndexOf('.')) + ".chksum";
+        String chksumFilePath = filePath.getParent().toString();
+        Path outPath = new Path(chksumFilePath + "/" + chksumFileName);
 
-                //try {
+        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fileSystem.create(outPath, true), "UTF-8"));
+        LOG.info("Checksum for file {}: {}", filePath, chkSum.toString());
+        bufferedWriter.write(chkSum.toString());
+        bufferedWriter.close();
 
-                String chksumFileName = filePath.getName().substring(0, filePath.getName().lastIndexOf('.')) + ".chksum";
-                String chksumFilePath = filePath.getParent().toString();
-                Path outPath = new Path(chksumFilePath + "/" + chksumFileName);
-
-                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fileSystem.create(outPath, true), "UTF-8"));
-                LOG.info("Checksum for file {}: {}", filePath, chkSum.toString());
-                //bufferedWriter.write(chkSum.hashCode());
-                bufferedWriter.write(chkSum.toString());
-                bufferedWriter.close();
-
-                //} catch (Exception e) {
-                //        LOG.error("File {} not found");
-                //}
-
-                return;
-        }
+        return;
+    }
 }

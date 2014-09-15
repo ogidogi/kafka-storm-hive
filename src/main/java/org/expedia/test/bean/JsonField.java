@@ -2,56 +2,53 @@ package org.expedia.test.bean;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class JsonField {
-        private char fieldDelimiter = '\001';
+    private char fieldDelimiter = '\001';
 
-        public JsonField() {
-        }
+    public JsonField() {
+    }
 
-        @JsonProperty("site_name")
-        private String currSite;
+    @JsonProperty("site_name")
+    private String currSite;
 
-        @JsonProperty("local_date")
-        private String currDate;
+    @JsonProperty("local_date")
+    private String currDate;
 
-        @JsonProperty("data")
-        private String data;
+    @JsonProperty("data")
+    private String data;
 
-        public String getCurrSite() {
-                return currSite;
-        }
+    public String getCurrSite() {
+        return currSite;
+    }
 
-        public void setFieldDelimiter(char fieldDelimiter) {
-                this.fieldDelimiter = fieldDelimiter;
-        }
+    public void setFieldDelimiter(char fieldDelimiter) {
+        this.fieldDelimiter = fieldDelimiter;
+    }
 
-        //getter and setter methods
+    // getter and setter methods
 
-        public String getCurrDate() {
-                return currDate;
-        }
+    public String getCurrDate() {
+        return currDate;
+    }
 
-        public String getData() {
-                return data;
-        }
+    public String getData() {
+        return data;
+    }
 
-        public void setCurrSite(String currSite) {
-                this.currSite = currSite;
-        }
+    public void setCurrSite(String currSite) {
+        this.currSite = currSite;
+    }
 
-        public void setCurrDate(String currDate) {
-                this.currDate = currDate;
-        }
+    public void setCurrDate(String currDate) {
+        this.currDate = currDate;
+    }
 
-        public void setData(String data) {
-                this.data = data;
-        }
+    public void setData(String data) {
+        this.data = data;
+    }
 
-        @Override
-        public String toString() {
-                return new StringBuilder(currSite).append(fieldDelimiter).append(currDate).append(fieldDelimiter).append(data).toString();
-        }
+    @Override
+    public String toString() {
+        return new StringBuilder(currSite).append(fieldDelimiter).append(currDate).append(fieldDelimiter).append(data).toString();
+    }
 }

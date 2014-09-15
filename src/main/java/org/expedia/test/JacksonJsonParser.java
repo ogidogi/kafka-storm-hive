@@ -15,33 +15,37 @@ import java.util.List;
 
 public class JacksonJsonParser extends BaseFunction {
 
-        public static final char FIELD_DELIMITER = '\001';
-        private static final Logger LOG = LoggerFactory.getLogger(JacksonJsonParser.class);
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 447216719985218672L;
+    public static final char FIELD_DELIMITER = '\001';
+    private static final Logger LOG = LoggerFactory.getLogger(JacksonJsonParser.class);
 
-        @Override
-        public void execute(TridentTuple objects, TridentCollector tridentCollector) {
-                byte[] inputJson = objects.getBinaryByField("bytes");
-                LOG.info("Input byte array: " + String.valueOf(inputJson));
+    @Override
+    public void execute(TridentTuple objects, TridentCollector tridentCollector) {
+        byte[] inputJson = objects.getBinaryByField("bytes");
+        LOG.info("Input byte array: " + String.valueOf(inputJson));
 
-                try {
-                        String inputJsonString = new String(inputJson, "UTF-8");
-                        LOG.info("Deserialized string from input bytes: " + inputJsonString);
-                } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                }
-
-                List<Object> outValues = new ArrayList<Object>();
-
-                ObjectMapper mapper = new ObjectMapper();
-
-                try {
-                        JsonField jsonField = mapper.readValue(inputJson, JsonField.class);
-                        jsonField.setFieldDelimiter(FIELD_DELIMITER);
-                        outValues.add(jsonField);
-                        LOG.info("Output values: " + outValues);
-                        tridentCollector.emit(outValues);
-                } catch (IOException e) {
-                        e.printStackTrace();
-                }
+        try {
+            String inputJsonString = new String(inputJson, "UTF-8");
+            LOG.info("Deserialized string from input bytes: " + inputJsonString);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
+
+        List<Object> outValues = new ArrayList<Object>();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            JsonField jsonField = mapper.readValue(inputJson, JsonField.class);
+            jsonField.setFieldDelimiter(FIELD_DELIMITER);
+            outValues.add(jsonField);
+            LOG.info("Output values: " + outValues);
+            tridentCollector.emit(outValues);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
