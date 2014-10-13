@@ -1,8 +1,16 @@
 package org.expedia.test.bean;
 
+import java.io.Serializable;
+
 import org.codehaus.jackson.annotate.JsonProperty;
 
-public class JsonField {
+public class JsonField implements Serializable {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -1170978387066703409L;
+
     private char fieldDelimiter = '\001';
 
     public JsonField() {
